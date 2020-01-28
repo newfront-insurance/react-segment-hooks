@@ -149,28 +149,36 @@ export class SegmentClient {
    * @param callback
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#page
    */
-  page(event: PageEvent): void {
-    const { name, category, options, properties } = event;
-    const { debug } = this.options;
-    if (this.client) {
-      if (debug) {
-        console.log('[Segment] Page', event);
-      }
-      this.client.page(category, name, properties, {
-        ...options,
-        context: {
-          ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
-        },
-      }, () => {
+  page(event: PageEvent): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const { name, category, options, properties } = event;
+      const { debug } = this.options;
+      if (this.client) {
         if (debug) {
-          console.log('[Segment] Page succesful', event);
+          console.log('[Segment] Page', event);
         }
-      });
-    } else {
-      this.emitter.once('ready', () => {
-        this.page(event);
-      });
-    }
+        try {
+          this.client.page(category, name, properties, {
+            ...options,
+            context: {
+              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+            },
+          }, () => {
+            if (debug) {
+              console.log('[Segment] Page succesful', event);
+            }
+            resolve();
+          });
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        this.emitter.once('ready', () => {
+          this.page(event);
+        });
+      }
+    });
+
   }
 
   /**
@@ -180,28 +188,35 @@ export class SegmentClient {
    * @param traits Any extra traits about this person to update in Segment
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
    */
-  identify(event: IdentifyEvent): void {
-    const { userId, traits, options } = event;
-    const { debug } = this.options;
-    if (this.client) {
-      if (debug) {
-        console.log('[Segment] Identify', event);
-      }
-      this.client.identify(userId, traits, {
-        ...options,
-        context: {
-          ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
-        },
-      }, () => {
+  identify(event: IdentifyEvent): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const { userId, traits, options } = event;
+      const { debug } = this.options;
+      if (this.client) {
         if (debug) {
-          console.log('[Segment] Identify succesful', event);
+          console.log('[Segment] Identify', event);
         }
-      });
-    } else {
-      this.emitter.once('ready', () => {
-        this.identify(event);
-      });
-    }
+        try {
+          this.client.identify(userId, traits, {
+            ...options,
+            context: {
+              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+            },
+          }, () => {
+            if (debug) {
+              console.log('[Segment] Identify succesful', event);
+            }
+            resolve();
+          });
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        this.emitter.once('ready', () => {
+          this.identify(event);
+        });
+      }
+    });
   }
 
   /**
@@ -215,23 +230,30 @@ export class SegmentClient {
    * @param traits Any extra traits about this person to update in Segment
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#alias
    */
-  alias(event: AliasEvent): void {
-    const { userId, previousId, options } = event;
-    const { debug } = this.options;
-    if (this.client) {
-      if (debug) {
-        console.log('[Segment] Alias', event);
-      }
-      this.client.alias(userId, previousId, options, () => {
+  alias(event: AliasEvent): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const { userId, previousId, options } = event;
+      const { debug } = this.options;
+      if (this.client) {
         if (debug) {
-          console.log('[Segment] Alias succesful', event);
+          console.log('[Segment] Alias', event);
         }
-      });
-    } else {
-      this.emitter.once('ready', () => {
-        this.alias(event);
-      });
-    }
+        try {
+          this.client.alias(userId, previousId, options, () => {
+            if (debug) {
+              console.log('[Segment] Alias succesful', event);
+            }
+            resolve();
+          });
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        this.emitter.once('ready', () => {
+          this.alias(event);
+        });
+      }
+    });
   }
 
   /**
@@ -241,62 +263,33 @@ export class SegmentClient {
    * @param options
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#track
    */
-  track(track: TrackEvent): void {
-    const { event, properties, options } = track;
-    const { debug } = this.options;
-    if (this.client) {
-      if (debug) {
-        console.log('[Segment] Track', track);
-      }
-      this.client.track(event, properties, {
-        ...options,
-        context: {
-          ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
-        },
-      }, () => {
+  track(track: TrackEvent): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const { event, properties, options } = track;
+      const { debug } = this.options;
+      if (this.client) {
         if (debug) {
-          console.log('[Segment] Track sucessful', track);
+          console.log('[Segment] Track', track);
         }
+        try {
+          this.client.track(event, properties, {
+            ...options,
+            context: {
+              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+            },
+          }, () => {
+            if (debug) {
+              console.log('[Segment] Track sucessful', track);
+            }
+            resolve();
+          });
+        } catch(e) {
+          reject(e);
+        }
+      }
+      this.emitter.once('ready', () => {
+        this.track(track);
       });
-    }
-    this.emitter.once('ready', () => {
-      this.track(track);
-    });
-  }
-
-  /**
-   * Track an event when a link is click. When this is used in the browser it will add a slight delay so that
-   * the event has a chance to be sent.
-   * @param event
-   * @param properties
-   * @param options
-   * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#trackLink
-   */
-  trackLink(track: TrackElementEvent): void {
-    const { elements, event, properties } = track;
-    if (this.client) {
-      this.client.trackLink(elements, event, properties);
-    }
-    this.emitter.once('ready', () => {
-      this.trackLink(track);
-    });
-  }
-
-  /**
-   * Track an event when a form is submitted
-   * @param elements one or more DOM elements
-   * @param event
-   * @param properties
-   * @param options
-   * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#trackForm
-   */
-  trackForm(track: TrackElementEvent): void {
-    const { elements, event, properties } = track;
-    if (this.client) {
-      this.client.trackForm(elements, event, properties);
-    }
-    this.emitter.once('ready', () => {
-      this.trackForm(track);
     });
   }
 
@@ -308,28 +301,36 @@ export class SegmentClient {
    * @param callback
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#group
    */
-  group(event: GroupEvent): void {
-    const { groupId, options, traits } = event;
-    const { debug } = this.options;
-    if (this.client) {
-      if (debug) {
-        console.log('[Segment] Group', event);
-      }
-      this.client.group(groupId, traits, {
-        ...options,
-        context: {
-          ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
-        },
-      }, () => {
+  group(event: GroupEvent): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const { groupId, options, traits } = event;
+      const { debug } = this.options;
+      if (this.client) {
         if (debug) {
-          console.log('[Segment] Group succesful', event);
+          console.log('[Segment] Group', event);
         }
-      });
-    } else {
-      this.emitter.once('ready', () => {
-        this.group(event);
-      });
-    }
+        try {
+          this.client.group(groupId, traits, {
+            ...options,
+            context: {
+              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+            },
+          }, () => {
+            if (debug) {
+              console.log('[Segment] Group succesful', event);
+            }
+            resolve();
+          });
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        this.emitter.once('ready', () => {
+          this.group(event);
+        });
+      }
+    });
+
   }
 
   /**
@@ -338,14 +339,19 @@ export class SegmentClient {
    * @param callback
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#ready
    */
-  ready(callback: () => void): void {
-    if (this.client) {
-      this.client.ready(callback);
-    } else {
-      this.emitter.once('ready', () => {
-        this.ready(callback);
-      });
-    }
+  ready(callback?: () => void): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.client) {
+        this.client.ready(() => {
+          if (callback) callback();
+          resolve();
+        });
+      } else {
+        this.emitter.once('ready', () => {
+          this.ready(callback);
+        });
+      }
+    });
   }
 
   /**

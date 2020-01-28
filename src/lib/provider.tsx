@@ -19,7 +19,6 @@ interface SegmentProviderProps {
   children: React.ReactNode;
 }
 
-
 /**
  * Load the Segment snippet and add it to the app context. This client will be available before the script
  * has finished loading so that it doesn't block page rendering.
