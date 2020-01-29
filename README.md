@@ -17,7 +17,7 @@ import { SegmentProvider } from 'next-segment-hooks';
 
 Then you can access the analytics client using the `useSegment` hook:
 
-```
+```tsx
 function MyComponent() {
   const analytics = useSegment();
 
@@ -137,15 +137,11 @@ analytics.alias({
 
 Waits for analytics.js to be ready and passes in the analytics.js library. You can use this to get access to analytics.js directly.
 
-```
+```ts
 analytics.ready(client => {
   client.setAnonymousId('blah');
 });
 ```
-
-## Creating your schema
-
-You will often want to avoid letting users use make up whatever event names they want.
 
 ---
 
