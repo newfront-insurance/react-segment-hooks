@@ -3,10 +3,14 @@
 Easily add Segment analytics to your Next app. Access analytics.js using React hooks without needing to manually include
 the snippet on the page.
 
+```
+yarn add @newfront-insurance/react-segment-hooks
+```
+
 First, add the provider:
 
 ```ts
-import { SegmentProvider } from 'next-segment-hooks';
+import { SegmentProvider } from 'react-segment-hooks';
 ```
 
 ```tsx
