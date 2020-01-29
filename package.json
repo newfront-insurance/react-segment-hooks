@@ -1,5 +1,5 @@
 {
-  "name": "react-segment-hooks",
+  "name": "@newfront/react-segment-hooks",
   "version": "0.2.1",
   "license": "MIT",
   "main": "dist/index.js",
