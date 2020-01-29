@@ -20,7 +20,7 @@
     "prepare": "tsdx build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "publish": "npx np"
+    "np": "npx np"
   },
   "peerDependencies": {
     "react": ">=16"
