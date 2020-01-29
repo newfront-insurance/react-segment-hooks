@@ -1,5 +1,3 @@
-import { EventEmitter } from 'events';
-
 export type Properties = Record<string, any>;
 
 export enum EventType {
