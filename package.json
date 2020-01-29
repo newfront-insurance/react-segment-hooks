@@ -1,4 +1,5 @@
 {
+  "name": "next-segment-hooks",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -29,7 +30,6 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "next-segment-hooks",
   "author": "Anthony Short",
   "module": "dist/next-segment-hooks.esm.js",
   "devDependencies": {
