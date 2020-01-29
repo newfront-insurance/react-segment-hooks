@@ -1,5 +1,5 @@
 {
-  "name": "next-segment-hooks",
+  "name": "@newfront-insurance/next-segment-hooks",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -50,5 +50,7 @@
     "tslib": "^1.10.0",
     "typescript": "^3.7.5"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
