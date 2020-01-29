@@ -1,5 +1,14 @@
 import React, { createContext, useMemo, useContext, useEffect } from 'react';
+import { EventEmitter } from 'events';
 import { SegmentClient } from './client';
+import { loadSegmentSnippet } from './load';
+import { Analytics } from './types';
+
+declare global {
+  interface Window {
+    analytics: Analytics;
+  }
+}
 
 /**
  * This is the context object that useAnalytics will be grabbing the client from.
@@ -26,6 +35,7 @@ interface SegmentProviderProps {
  */
 export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
   const { apiKey, children, debug, timeout, anonymizeIp } = props;
+  const emitter = useMemo(() => new EventEmitter(), []);
 
   const client = useMemo(
     () =>
@@ -34,9 +44,19 @@ export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
         debug,
         timeout,
         anonymizeIp,
+        emitter
       }),
-    [apiKey, debug, timeout, anonymizeIp],
+    [apiKey, debug, timeout, anonymizeIp, emitter],
   );
+
+  useEffect(() => {
+    loadSegmentSnippet({ apiKey, debug })
+      .then((analytics) => {
+        if (analytics) {
+          client.initialize(analytics);
+        }
+      })
+  }, []);
 
   return <SegmentContext.Provider value={client}>{children}</SegmentContext.Provider>;
 }

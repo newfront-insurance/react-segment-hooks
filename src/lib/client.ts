@@ -1,110 +1,25 @@
 import { EventEmitter } from 'events';
+import { EventType } from './types';
 
-type Properties = Record<string, any>;
-type AnalyticsJS = SegmentAnalytics.AnalyticsJS;
-
-declare global {
-  interface Window {
-    analytics: SegmentAnalytics.AnalyticsJS;
-  }
-}
+import {
+  SegmentOpts,
+  Analytics,
+  PageEvent,
+  TrackEvent,
+  AliasEvent,
+  IdentifyEvent,
+  GroupEvent,
+  Properties,
+} from './types';
 
 interface Options {
   apiKey: string;
+  emitter: EventEmitter;
   debug?: boolean;
   timeout?: number;
   anonymizeIp?: boolean;
   autoload?: boolean;
 }
-
-export interface PageEvent {
-  name?: string;
-  category?: string;
-  properties?: Properties;
-  options?: SegmentAnalytics.SegmentOpts;
-}
-
-export interface IdentifyEvent {
-  userId: string;
-  traits?: Properties;
-  options?: SegmentAnalytics.SegmentOpts;
-}
-
-export interface TrackEvent {
-  event: string;
-  properties?: Properties;
-  options?: SegmentAnalytics.SegmentOpts;
-}
-
-export interface AliasEvent {
-  userId: string;
-  previousId?: string;
-  options?: SegmentAnalytics.SegmentOpts;
-}
-
-export interface GroupEvent {
-  groupId: string;
-  traits?: Properties;
-  options?: SegmentAnalytics.SegmentOpts;
-}
-
-export interface TrackElementEvent {
-  elements: Element | Element[];
-  event: string;
-  properties?: Properties;
-}
-
-/**
- * Load a script into the DOM
- * @param src
- */
-async function loadScript(src: string): Promise<void> {
-  if (typeof document === 'undefined') {
-    throw new Error('Unable to load script in a server environment');
-  }
-  return new Promise((resolve, reject) => {
-    let script = document.createElement("script");
-    script.type = "text/javascript";
-    script.async = true;
-    script.src = src;
-    script.onload = () => resolve();
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-/**
- * This loads the Segment analytics.js snippet onto the page using the API key. This
- * API key maps to the "source" in Segment. This API key will be different depending on the environment.
- * @param apiKey Segment API key
- */
-export async function loadSegmentSnippet(options: Options): Promise<SegmentAnalytics.AnalyticsJS | undefined> {
-  const { apiKey, debug } = options;
-
-  if (typeof window === 'undefined') {
-    if (debug) console.log('[Segment] Unable to load analytics.js in a server environment. Skipping.');
-    return undefined;
-  }
-
-  if (typeof window.analytics !== 'undefined') {
-    // eslint-disable-next-line no-console
-    if (debug) console.log('[Segment] analytics.js already loaded. Using the existing window.analytics.');
-    return window.analytics;
-  }
-
-  try {
-    if (debug) console.log(`[Segment] Loading analytics.js...`);
-    if (debug) console.log(`[Segment] Using write key: ${apiKey}`);
-    await loadScript(`https://cdn.segment.com/analytics.js/v1/${apiKey}/analytics.min.js`);
-    if (debug) console.log('[Segment] analytics.js is loaded and ready ✅');
-  } catch (error) {
-    console.warn('[Segment] Failed to load analytics.js. No analytics events will be tracked.');
-    return undefined;
-  }
-
-  return (window.analytics as unknown) as SegmentAnalytics.AnalyticsJS;
-}
-
 
 /**
  * This is the wrapper around the Segment client that allows us to queue events until the library
@@ -112,33 +27,28 @@ export async function loadSegmentSnippet(options: Options): Promise<SegmentAnaly
  * up and triggered once it's ready.
  */
 export class SegmentClient {
-  private client: AnalyticsJS | undefined;
+  private client: Analytics | undefined;
 
   private options: Options;
 
-  private emitter = new EventEmitter();
+  private emitter: EventEmitter;
 
   constructor(options: Options) {
     this.options = options;
-
-    loadSegmentSnippet(this.options)
-      .then((analytics) => {
-        if (analytics) {
-          this.initialize(analytics);
-        }
-      })
+    this.emitter = options.emitter;
   }
 
   /**
    * Set the analytics client. This should only be called once.
    * @param analytics
    */
-  initialize(analytics: SegmentAnalytics.AnalyticsJS): void {
+  initialize(analytics: Analytics): void {
+    if (this.client) return;
     const { timeout = 200, debug = false } = this.options;
     this.client = analytics;
     this.client.timeout(timeout);
     this.client.debug(debug);
-    this.emitter.emit('ready');
+    this.emitter.emit('initialize');
   }
 
   /**
@@ -149,7 +59,7 @@ export class SegmentClient {
    * @param callback
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#page
    */
-  page(event: PageEvent): Promise<void> {
+  page(event: PageEvent = {}): Promise<void> {
     return new Promise((resolve, reject) => {
       const { name, category, options, properties } = event;
       const { debug } = this.options;
@@ -158,27 +68,32 @@ export class SegmentClient {
           console.log('[Segment] Page', event);
         }
         try {
-          this.client.page(category, name, properties, {
-            ...options,
-            context: {
-              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+          this.client.page(
+            category,
+            name,
+            properties,
+            {
+              ...options,
+              context: {
+                ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+              },
             },
-          }, () => {
-            if (debug) {
-              console.log('[Segment] Page succesful', event);
+            () => {
+              if (debug) {
+                console.log('[Segment] Page succesful', event);
+              }
+              resolve();
             }
-            resolve();
-          });
+          );
         } catch (error) {
           reject(error);
         }
       } else {
-        this.emitter.once('ready', () => {
-          this.page(event);
+        this.emitter.once('initialize', () => {
+          this.page(event).then(() => resolve());
         });
       }
     });
-
   }
 
   /**
@@ -197,22 +112,27 @@ export class SegmentClient {
           console.log('[Segment] Identify', event);
         }
         try {
-          this.client.identify(userId, traits, {
-            ...options,
-            context: {
-              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+          this.client.identify(
+            userId,
+            traits,
+            {
+              ...options,
+              context: {
+                ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+              },
             },
-          }, () => {
-            if (debug) {
-              console.log('[Segment] Identify succesful', event);
+            () => {
+              if (debug) {
+                console.log('[Segment] Identify succesful', event);
+              }
+              resolve();
             }
-            resolve();
-          });
+          );
         } catch (error) {
           reject(error);
         }
       } else {
-        this.emitter.once('ready', () => {
+        this.emitter.once('initialize', () => {
           this.identify(event);
         });
       }
@@ -249,7 +169,7 @@ export class SegmentClient {
           reject(error);
         }
       } else {
-        this.emitter.once('ready', () => {
+        this.emitter.once('initialize', () => {
           this.alias(event);
         });
       }
@@ -272,22 +192,27 @@ export class SegmentClient {
           console.log('[Segment] Track', track);
         }
         try {
-          this.client.track(event, properties, {
-            ...options,
-            context: {
-              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+          this.client.track(
+            event,
+            properties,
+            {
+              ...options,
+              context: {
+                ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+              },
             },
-          }, () => {
-            if (debug) {
-              console.log('[Segment] Track sucessful', track);
+            () => {
+              if (debug) {
+                console.log('[Segment] Track sucessful', track);
+              }
+              resolve();
             }
-            resolve();
-          });
-        } catch(e) {
+          );
+        } catch (e) {
           reject(e);
         }
       }
-      this.emitter.once('ready', () => {
+      this.emitter.once('initialize', () => {
         this.track(track);
       });
     });
@@ -310,27 +235,31 @@ export class SegmentClient {
           console.log('[Segment] Group', event);
         }
         try {
-          this.client.group(groupId, traits, {
-            ...options,
-            context: {
-              ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+          this.client.group(
+            groupId,
+            traits,
+            {
+              ...options,
+              context: {
+                ip: this.options.anonymizeIp ? '0.0.0.0' : undefined,
+              },
             },
-          }, () => {
-            if (debug) {
-              console.log('[Segment] Group succesful', event);
+            () => {
+              if (debug) {
+                console.log('[Segment] Group succesful', event);
+              }
+              resolve();
             }
-            resolve();
-          });
+          );
         } catch (error) {
           reject(error);
         }
       } else {
-        this.emitter.once('ready', () => {
+        this.emitter.once('initialize', () => {
           this.group(event);
         });
       }
     });
-
   }
 
   /**
@@ -339,15 +268,15 @@ export class SegmentClient {
    * @param callback
    * @see https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#ready
    */
-  ready(callback?: () => void): Promise<void> {
-    return new Promise((resolve) => {
+  ready(callback?: (analytics: Analytics) => void): Promise<void> {
+    return new Promise(resolve => {
       if (this.client) {
         this.client.ready(() => {
-          if (callback) callback();
+          if (callback && this.client) callback(this.client);
           resolve();
         });
       } else {
-        this.emitter.once('ready', () => {
+        this.emitter.once('initialize', () => {
           this.ready(callback);
         });
       }
@@ -360,15 +289,36 @@ export class SegmentClient {
    * @param callback
    */
   on(
-    method: 'track' | 'alias' | 'group' | 'identify' | 'page',
-    callback: (event: string, properties?: Properties, options?: SegmentAnalytics.SegmentOpts) => void,
+    method: EventType,
+    callback: (
+      event: string,
+      properties?: Properties,
+      options?: SegmentOpts
+    ) => void
   ): void {
     if (this.client) {
       this.client.on(method, callback);
     } else {
-      this.emitter.once('ready', () => {
+      this.emitter.once('initialize', () => {
         this.on(method, callback);
       });
     }
+  }
+
+  /**
+   * Set the ID for the anonymous
+   * @param id
+   */
+  setAnonymousId(id: string): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.client) {
+        this.client.setAnonymousId(id);
+      } else {
+        this.emitter.once('initialize', () => {
+          this.setAnonymousId(id);
+          resolve();
+        });
+      }
+    });
   }
 }

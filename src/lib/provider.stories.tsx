@@ -35,23 +35,42 @@ function MyComponent() {
     });
   }
 
+  function aliasEvent() {
+    analytics.alias({
+      userId: '12345',
+      previousId: '54321'
+    });
+  }
+
   return (
     <div>
       <button onClick={trackEvent}>Track event</button>
       <button onClick={pageEvent}>Page event</button>
       <button onClick={identifyEvent}>Identify event</button>
       <button onClick={groupEvent}>Group event</button>
+      <button onClick={aliasEvent}>Alias event</button>
     </div>
   );
 }
 
-export const Autoload = () => (
+export const WithDebug = () => (
   <SegmentProvider apiKey="1oCyaafUaekERJgYCd3J2uJjhBDLHWNj" debug>
     <MyComponent />
   </SegmentProvider>
 );
 
-Autoload.story = {
-  name: 'Loading the script',
+WithDebug.story = {
+  name: 'With debug',
+};
+
+
+export const NoDebug = () => (
+  <SegmentProvider apiKey="1oCyaafUaekERJgYCd3J2uJjhBDLHWNj">
+    <MyComponent />
+  </SegmentProvider>
+);
+
+NoDebug.story = {
+  name: 'No debug',
 };
 
