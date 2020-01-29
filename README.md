@@ -1,4 +1,4 @@
-# next-segment-hooks
+# react-segment-hooks
 
 Easily add Segment analytics to your Next app. Access analytics.js using React hooks without needing to manually include
 the snippet on the page.

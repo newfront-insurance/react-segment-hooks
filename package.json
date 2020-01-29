@@ -1,5 +1,5 @@
 {
-  "name": "@newfront-insurance/next-segment-hooks",
+  "name": "@newfront-insurance/react-segment-hooks",
   "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -14,7 +14,8 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "publish": "npx np"
   },
   "peerDependencies": {
     "react": ">=16"
@@ -31,7 +32,7 @@
     "trailingComma": "es5"
   },
   "author": "Anthony Short",
-  "module": "dist/next-segment-hooks.esm.js",
+  "module": "dist/react-segment-hooks.esm.js",
   "devDependencies": {
     "@babel/core": "^7.8.3",
     "@storybook/addon-actions": "^5.3.9",
@@ -50,8 +51,5 @@
     "tsdx": "^0.12.3",
     "tslib": "^1.10.0",
     "typescript": "^3.7.5"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   }
 }
