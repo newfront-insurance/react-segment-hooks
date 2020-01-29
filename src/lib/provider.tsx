@@ -14,7 +14,9 @@ declare global {
  * This is the context object that useAnalytics will be grabbing the client from.
  * When you're trying to mock analytics calls, you should pass a fake value here.
  */
-export const SegmentContext = createContext<SegmentClient | undefined>(undefined);
+export const SegmentContext = createContext<SegmentClient | undefined>(
+  undefined
+);
 
 /**
  * The provider props. The API key is for the Segment source.
@@ -44,21 +46,22 @@ export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
         debug,
         timeout,
         anonymizeIp,
-        emitter
+        emitter,
       }),
-    [apiKey, debug, timeout, anonymizeIp, emitter],
+    [apiKey, debug, timeout, anonymizeIp, emitter]
   );
 
   useEffect(() => {
-    loadSegmentSnippet({ apiKey, debug })
-      .then((analytics) => {
-        if (analytics) {
-          client.initialize(analytics);
-        }
-      })
-  }, []);
+    loadSegmentSnippet({ apiKey, debug }).then(analytics => {
+      if (analytics) {
+        client.initialize(analytics);
+      }
+    });
+  }, [apiKey, client, debug]);
 
-  return <SegmentContext.Provider value={client}>{children}</SegmentContext.Provider>;
+  return (
+    <SegmentContext.Provider value={client}>{children}</SegmentContext.Provider>
+  );
 }
 
 /**
@@ -68,7 +71,9 @@ export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
 export function useSegment(): SegmentClient {
   const client = useContext(SegmentContext);
   if (!client) {
-    throw new Error('The useSegment hook needs <SegmentProvider> to be present higher in the React tree.');
+    throw new Error(
+      'The useSegment hook needs <SegmentProvider> to be present higher in the React tree.'
+    );
   }
   return client;
 }

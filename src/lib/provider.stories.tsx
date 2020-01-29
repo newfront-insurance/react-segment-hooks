@@ -10,13 +10,13 @@ function MyComponent() {
 
   function trackEvent() {
     analytics.track({
-      event: 'Test Event'
+      event: 'Test Event',
     });
   }
 
   function pageEvent() {
     analytics.page({
-      name: 'Fake page'
+      name: 'Fake page',
     });
   }
 
@@ -24,21 +24,21 @@ function MyComponent() {
     analytics.identify({
       userId: '12345',
       traits: {
-        email: 'fake@example.com'
+        email: 'fake@example.com',
       },
     });
   }
 
   function groupEvent() {
     analytics.group({
-      groupId: 'Fake Group'
+      groupId: 'Fake Group',
     });
   }
 
   function aliasEvent() {
     analytics.alias({
       userId: '12345',
-      previousId: '54321'
+      previousId: '54321',
     });
   }
 
@@ -63,7 +63,6 @@ WithDebug.story = {
   name: 'With debug',
 };
 
-
 export const NoDebug = () => (
   <SegmentProvider apiKey="1oCyaafUaekERJgYCd3J2uJjhBDLHWNj">
     <MyComponent />
@@ -73,4 +72,3 @@ export const NoDebug = () => (
 NoDebug.story = {
   name: 'No debug',
 };
-

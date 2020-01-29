@@ -310,7 +310,7 @@ export class SegmentClient {
    * @param id
    */
   setAnonymousId(id: string): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (this.client) {
         this.client.setAnonymousId(id);
       } else {

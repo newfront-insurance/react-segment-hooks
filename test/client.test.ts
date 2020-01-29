@@ -350,7 +350,7 @@ describe('SegmentClient', () => {
         emitter,
       });
       client.group({
-        groupId: 'Admin'
+        groupId: 'Admin',
       });
       client.initialize(analytics);
       expect(analytics.group).toHaveBeenCalled();
@@ -389,18 +389,17 @@ describe('SegmentClient', () => {
       analytics.group = (groupId, traits) => {
         expect(groupId).toBe('Admin');
         expect(traits).toEqual({
-          test: '1'
+          test: '1',
         });
         done();
       };
       client.group({
         groupId: 'Admin',
         traits: {
-          test: '1'
+          test: '1',
         },
       });
       client.initialize(analytics);
     });
   });
-
 });

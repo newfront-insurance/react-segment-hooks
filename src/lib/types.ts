@@ -5,7 +5,7 @@ export enum EventType {
   alias = 'alias',
   group = 'group',
   identify = 'identify',
-  page = 'page'
+  page = 'page',
 }
 
 export interface SegmentOpts {
@@ -15,37 +15,66 @@ export interface SegmentOpts {
 }
 
 export interface Analytics {
-  identify(userId: string, traits?: Properties, options?: SegmentOpts, callback?: () => void): void;
-  track(event: string, properties?: Properties, options?: SegmentOpts, callback?: () => void): void;
-  page(category?: string, name?: string, properties?: Properties, options?: SegmentOpts, callback?: () => void): void;
-  group(groupId: string, traits?: Properties, options?: SegmentOpts, callback?: () => void): void;
-  alias(userId: string, previousId?: string, options?: SegmentOpts, callback?: () => void): void;
+  identify(
+    userId: string,
+    traits?: Properties,
+    options?: SegmentOpts,
+    callback?: () => void
+  ): void;
+  track(
+    event: string,
+    properties?: Properties,
+    options?: SegmentOpts,
+    callback?: () => void
+  ): void;
+  page(
+    category?: string,
+    name?: string,
+    properties?: Properties,
+    options?: SegmentOpts,
+    callback?: () => void
+  ): void;
+  group(
+    groupId: string,
+    traits?: Properties,
+    options?: SegmentOpts,
+    callback?: () => void
+  ): void;
+  alias(
+    userId: string,
+    previousId?: string,
+    options?: SegmentOpts,
+    callback?: () => void
+  ): void;
   ready(callback: () => void): void;
   reset(): void;
   debug(state?: boolean): void;
   setAnonymousId(id: string): void;
   timeout(milliseconds: number): void;
-  on(method: EventType,
+  on(
+    method: EventType,
     callback: (
       event: string,
       properties?: Properties,
       options?: SegmentOpts
     ) => void
-  ): void
-  once(method: EventType,
+  ): void;
+  once(
+    method: EventType,
     callback: (
       event: string,
       properties?: Properties,
       options?: SegmentOpts
     ) => void
-  ): void
-  off(method: EventType,
+  ): void;
+  off(
+    method: EventType,
     callback?: (
       event: string,
       properties?: Properties,
       options?: SegmentOpts
     ) => void
-  ): void
+  ): void;
 }
 
 export interface PageEvent {
