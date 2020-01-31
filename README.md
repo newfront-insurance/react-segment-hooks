@@ -260,3 +260,12 @@ You can also choose to install and use [invariant](https://github.com/palmerhq/t
 CJS, ESModules, and UMD module formats are supported.
 
 The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+
+## Built at Newfront.com
+
+We're an insurance brokerage for the 21st century.
+
+Insurance is essential to every business and individual. Yet the industry remains rooted in outdated processes and antiquated technology. Meanwhile, nearly every other industry has evolved to better serve their customers. We started Newfront to transform our industry on behalf of our clients.
+
+Learn more at [Newfront.com](https://www.newfront.com).
+Interested in what we're up to? See our [careers page](https://www.newfront.com/careers).
