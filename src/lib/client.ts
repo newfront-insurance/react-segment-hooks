@@ -14,11 +14,9 @@ import {
 
 interface Options {
   apiKey: string;
-  emitter: EventEmitter;
   debug?: boolean;
   timeout?: number;
   anonymizeIp?: boolean;
-  autoload?: boolean;
 }
 
 /**
@@ -31,11 +29,10 @@ export class SegmentClient {
 
   private options: Options;
 
-  private emitter: EventEmitter;
+  public emitter = new EventEmitter();
 
   constructor(options: Options) {
     this.options = options;
-    this.emitter = options.emitter;
   }
 
   /**

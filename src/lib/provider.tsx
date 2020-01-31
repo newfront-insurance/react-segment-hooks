@@ -1,5 +1,4 @@
 import React, { createContext, useMemo, useContext, useEffect } from 'react';
-import { EventEmitter } from 'events';
 import { SegmentClient } from './client';
 import { loadSegmentSnippet } from './load';
 import { Analytics } from './types';
@@ -37,7 +36,6 @@ interface SegmentProviderProps {
  */
 export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
   const { apiKey, children, debug, timeout, anonymizeIp } = props;
-  const emitter = useMemo(() => new EventEmitter(), []);
 
   const client = useMemo(
     () =>
@@ -46,9 +44,8 @@ export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
         debug,
         timeout,
         anonymizeIp,
-        emitter,
       }),
-    [apiKey, debug, timeout, anonymizeIp, emitter]
+    [apiKey, debug, timeout, anonymizeIp]
   );
 
   useEffect(() => {
