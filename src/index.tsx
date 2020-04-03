@@ -1,4 +1,9 @@
-export { SegmentProvider, useSegment, SegmentContext } from './lib/provider';
+export {
+  SegmentProvider,
+  useSegment,
+  SegmentContext,
+  useSegmentClient,
+} from './lib/provider';
 export { SegmentClient } from './lib/client';
 export {
   Analytics,

@@ -29,13 +29,20 @@ interface SegmentProviderProps {
   children: React.ReactNode;
 }
 
+interface SegmentClientOptions {
+  apiKey: string;
+  debug?: boolean;
+  timeout?: number;
+  anonymizeIp?: boolean;
+  autoload?: boolean;
+}
+
 /**
- * Load the Segment snippet and add it to the app context. This client will be available before the script
- * has finished loading so that it doesn't block page rendering.
- * @param props SegmentProviderProps
+ * Create a Segment client. The client will maintain it's identity while the options are unchanged between renders.
+ * @param options
  */
-export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
-  const { apiKey, children, debug, timeout, anonymizeIp } = props;
+export function useSegmentClient(options: SegmentClientOptions): SegmentClient {
+  const { apiKey, debug, timeout, anonymizeIp } = options;
 
   const client = useMemo(
     () =>
@@ -55,6 +62,24 @@ export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
       }
     });
   }, [apiKey, client, debug]);
+
+  return client;
+}
+
+/**
+ * Load the Segment snippet and add it to the app context. This client will be available before the script
+ * has finished loading so that it doesn't block page rendering.
+ * @param props SegmentProviderProps
+ */
+export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
+  const { apiKey, children, debug, timeout, anonymizeIp } = props;
+
+  const client = useSegmentClient({
+    apiKey,
+    debug,
+    timeout,
+    anonymizeIp,
+  });
 
   return (
     <SegmentContext.Provider value={client}>{children}</SegmentContext.Provider>
