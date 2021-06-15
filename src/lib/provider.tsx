@@ -63,7 +63,7 @@ export function useSegmentClient(options: SegmentClientOptions): SegmentClient {
         client.initialize(analytics);
       }
     });
-  }, [apiKey, client, debug]);
+  }, [apiKey, client, debug, hostAddress]);
 
   return client;
 }
