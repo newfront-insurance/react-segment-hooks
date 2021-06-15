@@ -2,6 +2,7 @@ import { Analytics } from './types';
 
 interface Options {
   apiKey: string;
+  hostAddress?: string;
   debug?: boolean;
 }
 
@@ -32,7 +33,7 @@ async function loadScript(src: string): Promise<void> {
 export async function loadSegmentSnippet(
   options: Options
 ): Promise<Analytics | undefined> {
-  const { apiKey, debug = false } = options;
+  const { apiKey, debug = false, hostAddress = 'cdn.segment.com' } = options;
 
   if (typeof window === 'undefined') {
     if (debug)
@@ -55,7 +56,7 @@ export async function loadSegmentSnippet(
     if (debug) console.log(`[Segment] Loading analytics.js...`);
     if (debug) console.log(`[Segment] Using write key: ${apiKey}`);
     await loadScript(
-      `https://cdn.segment.com/analytics.js/v1/${apiKey}/analytics.min.js`
+      `https://${hostAddress}/analytics.js/v1/${apiKey}/analytics.min.js`
     );
     if (debug) console.log('[Segment] analytics.js is loaded and ready ✅');
   } catch (error) {

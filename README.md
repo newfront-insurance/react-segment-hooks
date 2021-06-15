@@ -147,6 +147,16 @@ analytics.ready(client => {
 });
 ```
 
+## Proxy host address
+
+If you are using a [domain proxy](https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/custom-proxy/) instead of the Segment CDN, you may use the `hostAddress` parameter of the `<SegmentProvider>` as follows:
+
+```
+<SegmentProvider hostAddress="cdn.yourdomain.com">
+  <Root/>
+</SegmentProvider>
+```
+
 ---
 
 # Developing this package

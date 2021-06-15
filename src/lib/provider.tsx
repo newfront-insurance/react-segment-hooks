@@ -22,6 +22,7 @@ export const SegmentContext = createContext<SegmentClient | undefined>(
  */
 interface SegmentProviderProps {
   apiKey: string;
+  hostAddress?: string;
   debug?: boolean;
   timeout?: number;
   anonymizeIp?: boolean;
@@ -31,6 +32,7 @@ interface SegmentProviderProps {
 
 interface SegmentClientOptions {
   apiKey: string;
+  hostAddress?: string;
   debug?: boolean;
   timeout?: number;
   anonymizeIp?: boolean;
@@ -42,7 +44,7 @@ interface SegmentClientOptions {
  * @param options
  */
 export function useSegmentClient(options: SegmentClientOptions): SegmentClient {
-  const { apiKey, debug, timeout, anonymizeIp } = options;
+  const { apiKey, hostAddress, debug, timeout, anonymizeIp } = options;
 
   const client = useMemo(
     () =>
@@ -56,12 +58,12 @@ export function useSegmentClient(options: SegmentClientOptions): SegmentClient {
   );
 
   useEffect(() => {
-    loadSegmentSnippet({ apiKey, debug }).then(analytics => {
+    loadSegmentSnippet({ apiKey, hostAddress, debug }).then(analytics => {
       if (analytics) {
         client.initialize(analytics);
       }
     });
-  }, [apiKey, client, debug]);
+  }, [apiKey, client, debug, hostAddress]);
 
   return client;
 }
@@ -72,10 +74,11 @@ export function useSegmentClient(options: SegmentClientOptions): SegmentClient {
  * @param props SegmentProviderProps
  */
 export function SegmentProvider(props: SegmentProviderProps): JSX.Element {
-  const { apiKey, children, debug, timeout, anonymizeIp } = props;
+  const { apiKey, hostAddress, children, debug, timeout, anonymizeIp } = props;
 
   const client = useSegmentClient({
     apiKey,
+    hostAddress,
     debug,
     timeout,
     anonymizeIp,
